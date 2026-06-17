@@ -72,8 +72,8 @@ export default function SequenceForm({ onSaved, onCancel }) {
         </select>
         <p style={hint}>
           {form.mode === 'autonomie'
-            ? 'Un code à 6 lettres sera généré. Distribuez-le aux élèves pour qu'ils rejoignent le parcours sur leur appareil.'
-            : 'Vous projetez le parcours au tableau. Vous contrôlez le rythme, les élèves participent à l'oral.'}
+            ? "Un code à 6 lettres sera généré. Distribuez-le aux élèves pour qu'ils rejoignent le parcours sur leur appareil."
+            : "Vous projetez le parcours au tableau. Vous contrôlez le rythme, les élèves participent à l'oral."}
         </p>
       </div>
 
