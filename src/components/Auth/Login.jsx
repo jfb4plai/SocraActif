@@ -120,13 +120,23 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
+  const [resetMode, setResetMode] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setError('Identifiants incorrects. Vérifiez votre email et mot de passe.')
+    if (resetMode) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+      if (error) setError(error.message)
+      else setResetSent(true)
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) setError('Identifiants incorrects. Vérifiez votre email et mot de passe.')
+    }
     setLoading(false)
   }
 
@@ -199,23 +209,42 @@ export default function Login() {
 
           <div className="sa-section">
             <div className="sa-login-wrap">
-              <h2>Connexion enseignant</h2>
-              <form onSubmit={handleSubmit}>
-                <div className="sa-field">
-                  <label className="sa-label" htmlFor="email">Email</label>
-                  <input id="email" className="sa-input" type="email" value={email}
-                    onChange={e => setEmail(e.target.value)} required autoComplete="email" />
+              <h2>{resetMode ? 'Mot de passe oublié' : 'Connexion enseignant'}</h2>
+
+              {resetSent ? (
+                <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+                  <div style={{ fontSize: 36, marginBottom: 10 }}>📧</div>
+                  <p style={{ color: '#0f6e56', fontSize: 14 }}>Un lien de réinitialisation a été envoyé à <strong>{email}</strong>.<br />Vérifiez votre boîte mail.</p>
+                  <button className="sa-btn" style={{ marginTop: '1rem' }} onClick={() => { setResetMode(false); setResetSent(false) }}>
+                    Retour à la connexion
+                  </button>
                 </div>
-                <div className="sa-field">
-                  <label className="sa-label" htmlFor="password">Mot de passe</label>
-                  <input id="password" className="sa-input" type="password" value={password}
-                    onChange={e => setPassword(e.target.value)} required autoComplete="current-password" />
-                </div>
-                {error && <p className="sa-error">{error}</p>}
-                <button type="submit" className="sa-btn" disabled={loading}>
-                  {loading ? 'Connexion…' : 'Se connecter'}
-                </button>
-              </form>
+              ) : (
+                <form onSubmit={handleSubmit}>
+                  <div className="sa-field">
+                    <label className="sa-label" htmlFor="email">Email</label>
+                    <input id="email" className="sa-input" type="email" value={email}
+                      onChange={e => setEmail(e.target.value)} required autoComplete="email" />
+                  </div>
+                  {!resetMode && (
+                    <div className="sa-field">
+                      <label className="sa-label" htmlFor="password">Mot de passe</label>
+                      <input id="password" className="sa-input" type="password" value={password}
+                        onChange={e => setPassword(e.target.value)} required={!resetMode} autoComplete="current-password" />
+                    </div>
+                  )}
+                  {error && <p className="sa-error">{error}</p>}
+                  <button type="submit" className="sa-btn" disabled={loading}>
+                    {loading ? '…' : resetMode ? 'Envoyer le lien' : 'Se connecter'}
+                  </button>
+                  <div style={{ textAlign: 'center', marginTop: '0.75rem' }}>
+                    <button type="button" onClick={() => { setResetMode(!resetMode); setError(null) }}
+                      style={{ background: 'none', border: 'none', color: '#0f6e56', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
+                      {resetMode ? '← Retour à la connexion' : 'Mot de passe oublié ?'}
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
 

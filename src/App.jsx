@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import Login from './components/Auth/Login'
+import ResetPassword from './pages/ResetPassword'
 import TeacherDashboard from './pages/TeacherDashboard'
 import StudentSession from './pages/StudentSession'
 import ProjectionMode from './pages/ProjectionMode'
@@ -9,6 +10,7 @@ function getRoute() {
   const path = window.location.pathname
   if (path.startsWith('/eleve')) return 'student'
   if (path.startsWith('/projection')) return 'projection'
+  if (path.startsWith('/reset-password')) return 'reset'
   return 'teacher'
 }
 
@@ -32,6 +34,7 @@ export default function App() {
 
   if (route === 'student') return <StudentSession />
   if (route === 'projection') return <ProjectionMode />
+  if (route === 'reset') return <ResetPassword />
   if (!session) return <Login />
   return <TeacherDashboard session={session} />
 }
