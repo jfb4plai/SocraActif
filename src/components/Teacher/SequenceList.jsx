@@ -6,7 +6,7 @@ export default function SequenceList({ onSelect, onNew }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.from('sequences').select('*').order('created_at', { ascending: false })
+    supabase.from('socra_sequences').select('*').order('created_at', { ascending: false })
       .then(({ data }) => { setSequences(data || []); setLoading(false) })
   }, [])
 

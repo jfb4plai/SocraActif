@@ -12,12 +12,12 @@ export default function ProjectionMode() {
 
   useEffect(() => {
     if (!sessionCode) return
-    supabase.from('sequences').select('*, steps(*)')
+    supabase.from('socra_sequences').select('*, socra_steps(*)')
       .eq('session_code', sessionCode.toUpperCase())
       .single()
       .then(({ data, error }) => {
         if (error) { setError('Code invalide'); return }
-        const steps = [...(data.steps || [])].sort((a, b) => a.position - b.position)
+        const steps = [...(data.socra_steps || [])].sort((a, b) => a.position - b.position)
         setData({ sequence: data, steps })
       })
   }, [sessionCode])

@@ -11,7 +11,7 @@ export default function StudentLogin({ onLoggedIn }) {
     e.preventDefault()
     setError(null)
     const { data, error } = await supabase
-      .from('sequences')
+      .from('socra_sequences')
       .select('*, steps(*)')
       .eq('session_code', sessionCode.toUpperCase())
       .single()

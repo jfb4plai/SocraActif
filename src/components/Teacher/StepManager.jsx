@@ -9,7 +9,7 @@ export default function StepManager({ sequence, onBack }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.from('steps').select('*')
+    supabase.from('socra_steps').select('*')
       .eq('sequence_id', sequence.id)
       .order('position')
       .then(({ data }) => { setSteps(data || []); setLoading(false) })

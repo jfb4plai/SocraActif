@@ -34,7 +34,7 @@ export default function SocraticDialog({
     setLoading(false)
 
     if (attemptId) {
-      await supabase.from('conversations').insert({
+      await supabase.from('socra_conversations').insert({
         attempt_id: attemptId, turn: currentTurn, role: 'assistant', content: data.question
       })
     }
@@ -46,7 +46,7 @@ export default function SocraticDialog({
     setHistory(newHistory)
 
     if (attemptId) {
-      await supabase.from('conversations').insert({
+      await supabase.from('socra_conversations').insert({
         attempt_id: attemptId, turn: currentTurn, role: 'student', content: answer
       })
     }

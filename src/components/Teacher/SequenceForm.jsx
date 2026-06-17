@@ -25,7 +25,7 @@ export default function SequenceForm({ onSaved, onCancel }) {
     const { data: { user } } = await supabase.auth.getUser()
     const sessionCode = Math.random().toString(36).substring(2, 8).toUpperCase()
     const { data, error } = await supabase
-      .from('sequences')
+      .from('socra_sequences')
       .insert({ ...form, user_id: user.id, session_code: sessionCode })
       .select()
       .single()

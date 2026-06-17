@@ -29,7 +29,7 @@ export default function StepView({ step, sequence, studentCode, attemptNumber, o
     })
     const classification = await classifyRes.json()
 
-    const { data: attempt } = await supabase.from('attempts').insert({
+    const { data: attempt } = await supabase.from('socra_attempts').insert({
       step_id: step.id,
       student_code: studentCode,
       answer,

@@ -42,7 +42,7 @@ export default function StepForm({ sequenceId, position, onSaved, onCancel }) {
     setSaving(true)
     setError(null)
     const { data, error } = await supabase
-      .from('steps')
+      .from('socra_steps')
       .insert({ ...form, sequence_id: sequenceId, position })
       .select()
       .single()
