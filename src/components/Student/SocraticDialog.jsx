@@ -1,6 +1,7 @@
 // src/components/Student/SocraticDialog.jsx
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import MathPalette from '../shared/MathPalette'
 
 export default function SocraticDialog({
   errorType, rupturePoint, scaffoldingLevel, maxTurns,
@@ -77,6 +78,8 @@ export default function SocraticDialog({
           ))}
         </div>
       )}
+
+      <MathPalette />
 
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input value={answer} onChange={e => setAnswer(e.target.value)} required

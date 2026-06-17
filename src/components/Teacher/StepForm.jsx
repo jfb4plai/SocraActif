@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { SCAFFOLDING } from '../../lib/constants'
+import MathPalette from '../shared/MathPalette'
 
 function Field({ label, name, value, onChange, placeholder, required, multiline }) {
   return (
@@ -53,6 +54,8 @@ export default function StepForm({ sequenceId, position, onSaved, onCancel }) {
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
       <h3 className="font-medium text-gray-800">Étape {position}</h3>
+
+      <MathPalette />
 
       <Field label="Énoncé" name="content" value={form.content} onChange={set('content')}
         placeholder="ex: Calcule 1/4 + 1/3" required multiline />

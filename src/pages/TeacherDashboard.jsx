@@ -48,9 +48,14 @@ export default function TeacherDashboard({ session }) {
               background: 'var(--surface)', border: '1px solid var(--border)',
               borderRadius: 'var(--radius)', padding: '1.5rem 1.75rem', marginBottom: '2rem'
             }}>
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: 'var(--text)', marginBottom: '1.25rem' }}>
-                Bienvenue dans SocraActif
-              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: 8 }}>
+                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: 'var(--text)' }}>
+                  Bienvenue dans SocraActif
+                </p>
+                <span style={{ fontSize: 12, color: 'var(--teal)', background: 'var(--teal-bg)', border: '1px solid var(--teal-border)', borderRadius: 20, padding: '3px 12px', fontWeight: 500 }}>
+                  Priorité mathématiques
+                </span>
+              </div>
               <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
                 <div>
                   <p style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--teal)', marginBottom: 6 }}>

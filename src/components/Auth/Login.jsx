@@ -164,6 +164,9 @@ export default function Login() {
             <p className="sa-hero-sub">
               L'IA classifie l'erreur de l'élève, l'enseignant fixe le contexte. Le dialogue fait le reste.
             </p>
+            <p style={{ display: 'inline-block', marginTop: '0.75rem', fontSize: 13, color: '#0f6e56', background: '#e1f5ee', border: '1px solid #1d9e75', borderRadius: 20, padding: '4px 14px', fontWeight: 500 }}>
+              Priorité mathématiques — taxonomie des erreurs issue du corpus RISS (hal-05361521)
+            </p>
           </div>
 
           <div className="sa-section">
