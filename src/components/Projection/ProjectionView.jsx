@@ -10,73 +10,99 @@ export default function ProjectionView({ step, sequence }) {
   const [history, setHistory] = useState([])
   const [currentTurn, setCurrentTurn] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
   const [phase, setPhase] = useState('input')  // 'input' | 'dialogue' | 'hint'
+
+  if (!step) return (
+    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <p className="text-gray-400">Aucune étape dans ce parcours.</p>
+    </div>
+  )
+
+  async function postJSON(url, body) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    if (!res.ok) throw new Error(`Erreur serveur (${res.status})`)
+    return res.json()
+  }
 
   async function handleClassify(e) {
     e.preventDefault()
     setLoading(true)
-    const res = await fetch('/api/classify-error', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    setError(null)
+    try {
+      const data = await postJSON('/api/classify-error', {
         student_answer: teacherAnswer,
         expected_answer: step.expected_answer,
         procedure_steps: step.procedure_steps,
         teacher_hypothesis: step.error_type_hypothesis,
         distraction_errors: step.distraction_errors
       })
-    })
-    const data = await res.json()
-    setClassification(data)
-    setLoading(false)
-    if (data.type === 'correct' || data.type === 'faute') return
-    await fetchNextQuestion(data.type, [])
-    setPhase('dialogue')
+      setClassification(data)
+      if (data.type !== 'correct' && data.type !== 'faute') {
+        await fetchNextQuestion(data.type, [], 1)
+        setPhase('dialogue')
+      }
+    } catch (err) {
+      setError('Erreur de connexion. Vérifiez votre réseau.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  async function fetchNextQuestion(errorType, convHistory) {
+  async function fetchNextQuestion(errorType, convHistory, turn) {
     setLoading(true)
-    const res = await fetch('/api/socratic-turn', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      const data = await postJSON('/api/socratic-turn', {
         error_type: errorType || classification?.type,
         rupture_point: step.rupture_point,
         scaffolding_level: step.scaffolding_level,
-        current_turn: currentTurn,
+        current_turn: turn ?? currentTurn,
         max_turns: sequence.max_socratic_turns,
         conversation_history: convHistory,
         last_student_answer: teacherAnswer
       })
-    })
-    const data = await res.json()
-    setQuestion(data.question)
-    setLoading(false)
+      setQuestion(data.question)
+    } catch (err) {
+      setError('Erreur lors de la génération de la question.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function handleNextTurn() {
     const newHistory = question
       ? [...history, { role: 'assistant', content: question }]
       : history
+    const nextTurn = currentTurn + 1
     setHistory(newHistory)
-    setCurrentTurn(t => t + 1)
-    await fetchNextQuestion(null, newHistory)
+    setCurrentTurn(nextTurn)
+    await fetchNextQuestion(null, newHistory, nextTurn)
   }
 
   async function handleRevealHint() {
     if (step.explicit_hint) { setHint(step.explicit_hint); setPhase('hint'); return }
-    const res = await fetch('/api/classify-error', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        student_answer: teacherAnswer, expected_answer: step.expected_answer,
-        procedure_steps: step.procedure_steps, teacher_hypothesis: step.error_type_hypothesis,
-        distraction_errors: step.distraction_errors, hint_mode: true
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await postJSON('/api/classify-error', {
+        student_answer: teacherAnswer,
+        expected_answer: step.expected_answer,
+        procedure_steps: step.procedure_steps,
+        teacher_hypothesis: step.error_type_hypothesis,
+        distraction_errors: step.distraction_errors,
+        hint_mode: true
       })
-    })
-    const data = await res.json()
-    setHint(data.hint)
-    setPhase('hint')
+      setHint(data.hint || 'Aucun indice disponible.')
+      setPhase('hint')
+    } catch (err) {
+      setError('Erreur lors de la génération de l\'indice.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -88,6 +114,12 @@ export default function ProjectionView({ step, sequence }) {
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-8 py-12 space-y-10">
+        {error && (
+          <div className="bg-red-900/30 border border-red-500/50 rounded-lg px-4 py-2 text-red-300 text-sm">
+            {error}
+          </div>
+        )}
+
         <div className="text-center max-w-2xl">
           <p className="text-gray-400 text-sm mb-4 uppercase tracking-wide">Étape {step.position}</p>
           <p className="text-3xl leading-relaxed">{step.content}</p>
