@@ -10,27 +10,34 @@ export default function SequenceList({ onSelect, onNew }) {
       .then(({ data }) => { setSequences(data || []); setLoading(false) })
   }, [])
 
-  if (loading) return <p className="text-gray-500">Chargement…</p>
+  if (loading) return <p style={{ color: 'var(--text3)', fontStyle: 'italic' }}>Chargement…</p>
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-gray-800">Mes parcours</h2>
-        <button onClick={onNew}
-          className="bg-teal text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90">
-          + Nouveau parcours
-        </button>
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, color: 'var(--text)' }}>
+          Mes parcours
+        </h2>
+        <button className="plai-btn" onClick={onNew}>+ Nouveau parcours</button>
       </div>
+
       {sequences.length === 0 && (
-        <p className="text-gray-500 text-sm">Aucun parcours. Créez le premier.</p>
+        <div className="plai-empty">Aucun parcours. Créez le premier.</div>
       )}
+
       {sequences.map(seq => (
         <button key={seq.id} onClick={() => onSelect(seq)}
-          className="w-full text-left bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:border-teal transition-colors">
-          <p className="font-medium text-gray-800">{seq.title}</p>
-          <p className="text-sm text-gray-500">{seq.subject} · {seq.mode}</p>
+          className="plai-card"
+          style={{ width: '100%', textAlign: 'left', cursor: 'pointer', display: 'block',
+            marginBottom: '0.75rem', transition: 'border-color 0.15s' }}
+          onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--teal)'}
+          onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}>
+          <p style={{ fontWeight: 500, color: 'var(--text)', marginBottom: 2 }}>{seq.title}</p>
+          <p style={{ fontSize: 13, color: 'var(--text2)' }}>{seq.subject} · {seq.mode}</p>
           {seq.session_code && (
-            <p className="text-xs text-teal mt-1">Code : {seq.session_code}</p>
+            <p style={{ fontSize: 12, color: 'var(--teal)', marginTop: 4 }}>
+              Code session : <strong>{seq.session_code}</strong>
+            </p>
           )}
         </button>
       ))}

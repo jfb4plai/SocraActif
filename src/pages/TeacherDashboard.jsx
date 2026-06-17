@@ -19,19 +19,29 @@ export default function TeacherDashboard({ session }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <div className="w-7 h-7 bg-teal rounded-full" />
-          <button onClick={() => setView('list')} className="font-bold text-gray-800 hover:text-teal">
-            SocraActif
+    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+      <nav className="plai-nav">
+        <button className="plai-nav-logo" onClick={() => setView('list')}>
+          <img src="/plai-logo.jpg" alt="PLAI" style={{ height: 32, width: 'auto' }} />
+          SocraActif
+        </button>
+        <div className="plai-nav-actions">
+          {view !== 'list' && (
+            <button className="plai-nav-link" onClick={() => setView('list')}>
+              ← Mes parcours
+            </button>
+          )}
+          <button className="plai-nav-link" onClick={() => supabase.auth.signOut()}>
+            Déconnexion
           </button>
         </div>
-        <button onClick={() => supabase.auth.signOut()} className="text-sm text-gray-500 hover:text-gray-700">
-          Déconnexion
-        </button>
-      </header>
-      <main className="max-w-3xl mx-auto px-6 py-8">
+      </nav>
+
+      <div className="plai-banner">
+        Pour toute question — <a href="mailto:jeanfrancois.beguin@ens.ecl.be">jeanfrancois.beguin@ens.ecl.be</a>
+      </div>
+
+      <div className="plai-container" style={{ paddingTop: '2rem', paddingBottom: '3rem' }}>
         {view === 'list' && (
           <SequenceList onSelect={handleSequenceSelected} onNew={() => setView('new')} />
         )}
@@ -41,7 +51,7 @@ export default function TeacherDashboard({ session }) {
         {view === 'steps' && activeSequence && (
           <StepManager sequence={activeSequence} onBack={() => setView('list')} />
         )}
-      </main>
+      </div>
     </div>
   )
 }
