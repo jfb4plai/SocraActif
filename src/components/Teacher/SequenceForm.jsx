@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { DEFAULTS, MODE } from '../../lib/constants'
 
+const hint = { fontSize: 12, color: 'var(--text3)', marginTop: 4, lineHeight: 1.5 }
+
 export default function SequenceForm({ onSaved, onCancel }) {
   const [form, setForm] = useState({
     title: '',
@@ -34,63 +36,85 @@ export default function SequenceForm({ onSaved, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 space-y-4">
-      <h2 className="text-lg font-semibold text-gray-800">Nouveau parcours</h2>
+    <form onSubmit={handleSubmit} style={{
+      background: 'var(--surface)', border: '1px solid var(--border)',
+      borderRadius: 'var(--radius)', padding: '1.75rem 2rem'
+    }}>
+      <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: 20, color: 'var(--text)', marginBottom: '0.5rem' }}>
+        Nouveau parcours
+      </p>
+      <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '1.75rem', lineHeight: 1.6 }}>
+        Un parcours regroupe une séquence d'étapes mathématiques. Vous y ajouterez les étapes après la création.
+        Le code de session permettra aux élèves de rejoindre le parcours.
+      </p>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Titre *</label>
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label className="plai-label">Titre du parcours *</label>
         <input value={form.title} onChange={e => set('title', e.target.value)} required
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-base" />
+          placeholder="ex: Fractions — addition de fractions hétéronymes"
+          className="plai-input" />
+        <p style={hint}>Choisissez un titre précis qui identifie la compétence travaillée.</p>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Matière *</label>
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label className="plai-label">Sous-thème mathématique *</label>
         <input value={form.subject} onChange={e => set('subject', e.target.value)} required
-          placeholder="ex: Fractions — addition"
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-base" />
+          placeholder="ex: Addition de fractions — dénominateurs différents"
+          className="plai-input" />
+        <p style={hint}>Précisez la notion ou la procédure ciblée (sera utilisée par l'IA pour calibrer ses questions).</p>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Mode de déploiement</label>
-        <select value={form.mode} onChange={e => set('mode', e.target.value)}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-base">
-          <option value="autonomie">Autonomie (code élève)</option>
-          <option value="projection">Projection (tableau collectif)</option>
+      <div style={{ marginBottom: '1.75rem' }}>
+        <label className="plai-label">Mode de déploiement</label>
+        <select value={form.mode} onChange={e => set('mode', e.target.value)} className="plai-input">
+          <option value="autonomie">Autonomie — l'élève travaille seul avec un code de session</option>
+          <option value="projection">Projection — l'enseignant pilote au tableau collectif</option>
         </select>
+        <p style={hint}>
+          {form.mode === 'autonomie'
+            ? 'Un code à 6 lettres sera généré. Distribuez-le aux élèves pour qu'ils rejoignent le parcours sur leur appareil.'
+            : 'Vous projetez le parcours au tableau. Vous contrôlez le rythme, les élèves participent à l'oral.'}
+        </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Seuil validation (%)</label>
-          <input type="number" min="50" max="100" value={form.validation_threshold}
-            onChange={e => set('validation_threshold', parseInt(e.target.value))}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-base" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Blocage</label>
-          <select value={form.blocking_mode} onChange={e => set('blocking_mode', e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-base">
-            <option value="soft">Doux (avertissement)</option>
-            <option value="strict">Strict (bloquant)</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tours socratiques max</label>
-          <input type="number" min="2" max="6" value={form.max_socratic_turns}
-            onChange={e => set('max_socratic_turns', parseInt(e.target.value))}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-base" />
+      <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
+        <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '0.9rem' }}>
+          Paramètres pédagogiques — valeurs par défaut recommandées
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+          <div>
+            <label className="plai-label">Tours socratiques max</label>
+            <input type="number" min="2" max="6" value={form.max_socratic_turns}
+              onChange={e => set('max_socratic_turns', parseInt(e.target.value))}
+              className="plai-input" />
+            <p style={hint}>Nombre de questions que l'IA pose avant de dévoiler l'indice. Entre 2 (rapide) et 6 (approfondi). Défaut : 4.</p>
+          </div>
+          <div>
+            <label className="plai-label">Seuil de validation (%)</label>
+            <input type="number" min="50" max="100" value={form.validation_threshold}
+              onChange={e => set('validation_threshold', parseInt(e.target.value))}
+              className="plai-input" />
+            <p style={hint}>Score minimum pour valider une étape. À 70 %, l'élève peut avancer avec 7 réponses correctes sur 10. Défaut : 70 %.</p>
+          </div>
+          <div>
+            <label className="plai-label">Mode de blocage</label>
+            <select value={form.blocking_mode} onChange={e => set('blocking_mode', e.target.value)}
+              className="plai-input">
+              <option value="soft">Doux — avertissement, l'élève peut continuer</option>
+              <option value="strict">Strict — l'élève doit réussir avant d'avancer</option>
+            </select>
+            <p style={hint}>Doux : conseillé pour la découverte. Strict : pour les révisions ou les évaluations formatives.</p>
+          </div>
         </div>
       </div>
 
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="plai-error">{error}</p>}
 
-      <div className="flex gap-3">
-        <button type="submit" disabled={saving}
-          className="bg-teal text-white px-4 py-2 rounded-md font-medium hover:opacity-90 disabled:opacity-50">
-          {saving ? 'Enregistrement…' : 'Créer le parcours'}
+      <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <button type="submit" disabled={saving} className="plai-btn">
+          {saving ? 'Création…' : 'Créer le parcours'}
         </button>
-        <button type="button" onClick={onCancel}
-          className="text-gray-600 px-4 py-2 rounded-md hover:bg-gray-100">
+        <button type="button" onClick={onCancel} className="plai-btn-ghost">
           Annuler
         </button>
       </div>
