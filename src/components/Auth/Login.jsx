@@ -122,6 +122,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [resetSent, setResetSent] = useState(false)
   const [resetMode, setResetMode] = useState(false)
+  const [signupMode, setSignupMode] = useState(false)
+  const [signupPending, setSignupPending] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -133,6 +135,20 @@ export default function Login() {
       })
       if (error) setError(error.message)
       else setResetSent(true)
+    } else if (signupMode) {
+      if (password.length < 6) {
+        setError('Mot de passe : 6 caractères minimum.')
+        setLoading(false)
+        return
+      }
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: window.location.origin },
+      })
+      if (error) setError(error.message)
+      else if (!data.session) setSignupPending(true)
+      // si une session est renvoyée, App bascule automatiquement sur le tableau de bord
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError('Identifiants incorrects. Vérifiez votre email et mot de passe.')
@@ -212,13 +228,27 @@ export default function Login() {
 
           <div className="sa-section">
             <div className="sa-login-wrap">
-              <h2>{resetMode ? 'Mot de passe oublié' : 'Connexion enseignant'}</h2>
+              <h2>{resetMode ? 'Mot de passe oublié' : signupMode ? 'Créer un compte enseignant' : 'Connexion enseignant'}</h2>
+
+              {signupMode && !signupPending && (
+                <p style={{ fontSize: 13, color: '#5a564f', marginBottom: '1rem' }}>
+                  Ce compte vous servira pour toutes les apps PLAI qui partagent la même connexion enseignant.
+                </p>
+              )}
 
               {resetSent ? (
                 <div style={{ textAlign: 'center', padding: '1rem 0' }}>
                   <div style={{ fontSize: 36, marginBottom: 10 }}>📧</div>
                   <p style={{ color: '#0f6e56', fontSize: 14 }}>Un lien de réinitialisation a été envoyé à <strong>{email}</strong>.<br />Vérifiez votre boîte mail.</p>
                   <button className="sa-btn" style={{ marginTop: '1rem' }} onClick={() => { setResetMode(false); setResetSent(false) }}>
+                    Retour à la connexion
+                  </button>
+                </div>
+              ) : signupPending ? (
+                <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+                  <div style={{ fontSize: 36, marginBottom: 10 }}>📧</div>
+                  <p style={{ color: '#0f6e56', fontSize: 14 }}>Compte créé pour <strong>{email}</strong>.<br />Vérifiez votre boîte mail pour confirmer l'adresse, puis connectez-vous.</p>
+                  <button className="sa-btn" style={{ marginTop: '1rem' }} onClick={() => { setSignupMode(false); setSignupPending(false) }}>
                     Retour à la connexion
                   </button>
                 </div>
@@ -233,18 +263,27 @@ export default function Login() {
                     <div className="sa-field">
                       <label className="sa-label" htmlFor="password">Mot de passe</label>
                       <input id="password" className="sa-input" type="password" value={password}
-                        onChange={e => setPassword(e.target.value)} required={!resetMode} autoComplete="current-password" />
+                        onChange={e => setPassword(e.target.value)} required={!resetMode}
+                        autoComplete={signupMode ? 'new-password' : 'current-password'} />
                     </div>
                   )}
                   {error && <p className="sa-error">{error}</p>}
                   <button type="submit" className="sa-btn" disabled={loading}>
-                    {loading ? '…' : resetMode ? 'Envoyer le lien' : 'Se connecter'}
+                    {loading ? '…' : resetMode ? 'Envoyer le lien' : signupMode ? 'Créer le compte' : 'Se connecter'}
                   </button>
-                  <div style={{ textAlign: 'center', marginTop: '0.75rem' }}>
-                    <button type="button" onClick={() => { setResetMode(!resetMode); setError(null) }}
-                      style={{ background: 'none', border: 'none', color: '#0f6e56', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
-                      {resetMode ? '← Retour à la connexion' : 'Mot de passe oublié ?'}
-                    </button>
+                  <div style={{ textAlign: 'center', marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {!resetMode && (
+                      <button type="button" onClick={() => { setSignupMode(!signupMode); setError(null) }}
+                        style={{ background: 'none', border: 'none', color: '#0f6e56', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
+                        {signupMode ? '← Retour à la connexion' : 'Pas encore de compte ? Créer un compte'}
+                      </button>
+                    )}
+                    {!signupMode && (
+                      <button type="button" onClick={() => { setResetMode(!resetMode); setError(null) }}
+                        style={{ background: 'none', border: 'none', color: '#0f6e56', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
+                        {resetMode ? '← Retour à la connexion' : 'Mot de passe oublié ?'}
+                      </button>
+                    )}
                   </div>
                 </form>
               )}
